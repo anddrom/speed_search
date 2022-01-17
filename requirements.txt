@@ -1,0 +1,16 @@
+click
+colorama
+coverage
+Flask
+Flask-PyMongo
+Flask-Script
+importlib-metadata
+itsdangerous
+Jinja2
+MarkupSafe
+nose
+pymongo
+PyMySQL
+typing-extensions
+Werkzeug
+zipp

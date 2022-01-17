@@ -1,0 +1,107 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>FullSpeed Search</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <script src="{{ url_for('static', filename='plugins/jquery-3.6.0.min.js') }}"></script>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='plugins/jstree/jstree.min.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/main.css') }}" />
+
+    <script src="{{ url_for('static', filename='plugins/jstree/jstree.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  </head>
+
+  <body>
+    <nav class="navbar navbar-expand-sm">
+      <div class="container">
+        <a class="navbar-brand" href="#">
+          <img src="/static/images/logo.png" alt="Logo" width="200" />
+        </a>
+        <h3 class="ml-auto">Competitor Pricing Guide</h3>
+      </div>
+   </nav>
+    <div class="container py-4">
+      <section class="section">
+        <h4>Search</h4>
+        <div class="border p-4">
+          <form method="POST" action="" class="search-form" id="searchForm">
+            <div class="form-group">
+              <label for="state">State</label>
+              <select name="state" class="custom-select" id="state">
+                <option value="none">-</option>
+                {% for state in states  %}
+                  <option value="{{state}}">{{state}}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="region">Region</label>
+              <select name="region" class="custom-select" id="region">
+                {% for region in regions  %}
+                  <option value="{{region}}">{{region}}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="location">Location</label>
+              <select name="location" class="custom-select" id="location"></select>
+            </div>
+            <div class="form-group">
+              <label for="competitor">Competitor</label>
+              <select name="competitor" class="custom-select" id="competitor">
+                {% for competitor in competitors  %}
+                  <option value="{{competitor}}">{{competitor}}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <input type="submit" name="submit" value="Generate" class="btn btn-info" />
+          </form>
+        </div>
+      </section>
+
+      <section class="section pt-4">
+        <h4>Results</h4>
+        <div class="border p-4 results-panel">
+          <div id="resultsTree"></div>
+
+          <div class="filter-group" id="filterGroup">
+            <div class="filter-group-wrap">
+              <div class="form-group">
+                <label for="filterDate">Coupon Seen</label>
+                <select name="filterDate" class="custom-select" id="filterDate">
+                  <option value="all">all</option>
+                  <option value="7_d">Last 7 Days</option>
+                  <option value="1_m">Last 1 Month</option>
+                  <option value="3_m">Last 3 Months</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="region">Sort</label>
+                <select name="filterSort" class="custom-select" id="filterSort">
+                  <option value="coupon_lastseen">by Date</option>
+                  <option value="coupon_text">by Discount</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="search-loader" id="searchLoader">
+            <div class="lds-ripple"><div></div><div></div></div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script id="locationJson" type="application/json">{"data": "{{locations}}"}</script>
+
+  </body>
+</html>
