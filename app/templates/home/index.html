@@ -31,40 +31,59 @@
     <div class="container py-4">
       <section class="section">
         <h4>Search</h4>
-        <div class="border p-4">
-          <form method="POST" action="" class="search-form" id="searchForm">
-            <div class="form-group">
-              <label for="state">State</label>
-              <select name="state" class="custom-select" id="state">
-                <option value="none">-</option>
-                {% for state in states  %}
-                  <option value="{{state}}">{{state}}</option>
-                {% endfor %}
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="region">Region</label>
-              <select name="region" class="custom-select" id="region">
-                {% for region in regions  %}
-                  <option value="{{region}}">{{region}}</option>
-                {% endfor %}
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="location">Location</label>
-              <select name="location" class="custom-select" id="location"></select>
-            </div>
-            <div class="form-group">
-              <label for="competitor">Competitor</label>
-              <select name="competitor" class="custom-select" id="competitor">
-                {% for competitor in competitors  %}
-                  <option value="{{competitor}}">{{competitor}}</option>
-                {% endfor %}
-              </select>
-            </div>
 
-            <input type="submit" name="submit" value="Generate" class="btn btn-info" />
-          </form>
+        <ul class="nav nav-tabs" id="formTab" role="tablist">
+          <li class="nav-item">
+            <a class="nav-link active" id="default-tab" data-toggle="tab" href="#defaultTabContent" role="tab" aria-controls="default" aria-selected="true">Default</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="market-tab" data-toggle="tab" href="#marketTabContent" role="tab" aria-controls="market" aria-selected="false">Market</a>
+          </li>
+        </ul>
+
+        <div class="tab-content" id="formTabContent">
+          <div class="tab-pane fade show active" id="defaultTabContent" role="tabpanel" aria-labelledby="default-tab">
+            <form method="POST" action="" class="search-form" id="searchForm">
+              <div class="form-group">
+                <label for="state">State</label>
+                <select name="state" class="custom-select" id="state">
+                  <option value="none">-</option>
+                  {% for state in states  %}
+                    <option value="{{state}}">{{state}}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="location">Location</label>
+                <select name="location" class="custom-select" id="location"></select>
+              </div>
+              <div class="form-group">
+                <label for="competitor">Competitor</label>
+                <select name="competitor" class="custom-select" id="competitor">
+                  {% for competitor in competitors  %}
+                    <option value="{{competitor}}">{{competitor}}</option>
+                  {% endfor %}
+                </select>
+              </div>
+  
+              <input type="submit" name="submit" value="Generate" class="btn btn-info" />
+            </form>
+          </div>
+
+          <div class="tab-pane fade" id="marketTabContent" role="tabpanel" aria-labelledby="market-tab">
+            <form method="POST" action="" class="search-form" id="marketSearchForm">
+              <div class="form-group">
+                <label for="region">Market</label>
+                <select name="market" class="custom-select" id="market">
+                  {% for region in regions  %}
+                    <option value="{{region}}">{{region}}</option>
+                  {% endfor %}
+                </select>
+              </div>
+  
+              <input type="submit" name="submit" value="Generate" class="btn btn-info" />
+            </form>
+          </div>
         </div>
       </section>
 

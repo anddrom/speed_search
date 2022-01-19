@@ -1,5 +1,6 @@
 $(function() {
   var $searchForm = $('#searchForm');
+  var $marketSearchForm = $('#marketSearchForm');
   var $resultsTree = $('#resultsTree');
   var $searchLoader = $('#searchLoader');
   var $filterGroup = $('#filterGroup');
@@ -16,14 +17,20 @@ $(function() {
   var results = [];
   var locations = [];
 
+  // Default Search Ajax
+
   $searchForm.submit( function( event ) {
     event.preventDefault();
     event.stopPropagation();
 
     var form = event.target;
+
+    if ( !form['location'].value ) {
+      return false;
+    }
+
     var payload = {
       state: form['state'].value,
-      region: form['region'].value,
       location: form['location'].value,
       competitor: form['competitor'].value,
     }
@@ -33,6 +40,42 @@ $(function() {
 
     $.ajax({
       url: "/search",
+      method: 'POST',
+      data: payload,
+      success: function (response) {
+        if ( response.success ) {
+          results = response.data;
+          arrangeTree(results);
+
+          $filterGroup.show();
+        }
+
+        $searchLoader.hide();
+      },
+      error: function (error) {
+        console.error(error);
+        $searchLoader.hide();
+        $filterGroup.hide();
+      }
+    });
+  });
+
+  // Market Search Ajax
+
+  $marketSearchForm.submit( function( event ) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    var form = event.target;
+    var payload = {
+      market: form['market'].value,
+    }
+
+    $searchLoader.show();
+    $filterGroup.hide();
+
+    $.ajax({
+      url: "/market_search",
       method: 'POST',
       data: payload,
       success: function (response) {

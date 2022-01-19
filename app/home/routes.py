@@ -30,7 +30,7 @@ def index():
         state_rows = db_cursor.fetchall()
         states = [state[0] for state in list(state_rows)]
 
-        distance_sql = "SELECT DISTINCT location_region, location_origin FROM umbric.locations_distances"
+        distance_sql = "SELECT DISTINCT location_market, location_origin FROM umbric.locations_distances"
         db_cursor.execute(distance_sql)
         distance_rows = db_cursor.fetchall()
         regions = [distance[0] for distance in list(distance_rows) if distance[0] is not None]
@@ -94,12 +94,47 @@ def search():
 
             coupons.extend(data)
 
+        return jsonify({
+            "success": True,
+            "data": coupons,
+        })
+
+    except Exception as e:
+        print(e)
+        return jsonify({"error": str(e)}), 400
+
+
+@home.route('/market_search', methods=['POST'])
+def market_search():
+    try:
+        form_data = request.form.to_dict()
+        market = form_data.get('market')
+        if not market:
+            raise Exception('Market could not found')
+
+        coupons = []
+        coupon_columns = ['coupon_text', 'coupon_service', 'coupon_lastseen', 'coupon_category', 'coupon_type', 'destination', 'competitor', 'distance']
+
+        coupon_sql = f"SELECT DISTINCT c.coupon_text, c.coupon_service, c.coupon_lastseen, c.coupon_category, c.coupon_type, c.location_destination, j.location_franchise, d.location_distance FROM umbric.locations_coupons c JOIN umbric.locations_jiffy j ON c.location_destination = j.location_address JOIN umbric.locations_distances d ON c.location_destination = d.location_destination WHERE c.location_market  = '{market}'"
+        db_cursor.execute(coupon_sql)
+        coupon_rows = db_cursor.fetchall()
+
+        data = [dict(zip(coupon_columns, row)) for row in list(coupon_rows)]
+
+        for d in data:
+            try:
+                d['coupon_lastseen'] = d['coupon_lastseen'].isoformat()
+                d['note'] = f"{d['coupon_text']} {d['coupon_service']} ({'{:.1f}'.format(float(d['distance']))}m - {d['competitor']} @ {d['destination'].split(',')[0]} - Seen: {d['coupon_lastseen'].split('T')[0]})"
+            except Exception as e:
+                print(e)
+                continue
+
         # Close db connection
         # db_conn.close()
 
         return jsonify({
             "success": True,
-            "data": coupons,
+            "data": data,
         })
 
     except Exception as e:
