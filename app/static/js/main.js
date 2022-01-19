@@ -99,10 +99,6 @@ $(function() {
   function arrangeTree (jsons) {
     var treeData = {};
 
-    if ( jsons.length == 0 ) {
-      return false;
-    }
-
     // parse filter value
     var _filterDate = '1000';
     if ( filterDate != 'all' ) {

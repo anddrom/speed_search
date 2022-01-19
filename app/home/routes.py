@@ -69,14 +69,20 @@ def search():
         if not form_data.get('location'):
             raise Exception('Location could not found')
 
+        competitor = form_data.get('competitor')
+
         location_sql = f"SELECT location_destination, location_distance  FROM umbric.locations_distances WHERE location_origin = '{form_data.get('location')}'"
         db_cursor.execute(location_sql)
         location_rows = db_cursor.fetchall()
 
         coupons = []
-        coupon_columns = ['coupon_text', 'coupon_service', 'coupon_lastseen', 'coupon_category', 'coupon_type']
+        coupon_columns = ['coupon_text', 'coupon_service', 'coupon_lastseen', 'coupon_category', 'coupon_type', 'competitor']
         for location in list(location_rows):
-            coupon_sql = f"SELECT DISTINCT coupon_text, coupon_service, coupon_lastseen, coupon_category, coupon_type FROM umbric.locations_coupons WHERE location_destination = '{location[0]}'"
+            coupon_sql = f"SELECT DISTINCT c.coupon_text, c.coupon_service, c.coupon_lastseen, c.coupon_category, c.coupon_type, j.location_franchise FROM umbric.locations_coupons c JOIN umbric.locations_jiffy j ON c.location_destination = j.location_address WHERE location_destination = '{location[0]}'"
+
+            if competitor:
+                coupon_sql += f" AND j.location_franchise = '{competitor}'"
+
             db_cursor.execute(coupon_sql)
             coupon_rows = db_cursor.fetchall()
 
@@ -87,7 +93,6 @@ def search():
                     d['coupon_lastseen'] = d['coupon_lastseen'].isoformat()
                     d['destination'] = location[0]
                     d['distance'] = location[1]
-                    d['competitor'] = form_data.get('competitor')
                     d['note'] = f"{d['coupon_text']} {d['coupon_service']} ({'{:.1f}'.format(d['distance'])}m - {d['competitor']} @ {d['destination'].split(',')[0]} - Seen: {d['coupon_lastseen'].split('T')[0]})"
                 except:
                     continue

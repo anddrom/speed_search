@@ -60,6 +60,7 @@
               <div class="form-group">
                 <label for="competitor">Competitor</label>
                 <select name="competitor" class="custom-select" id="competitor">
+                  <option value="">-</option>
                   {% for competitor in competitors  %}
                     <option value="{{competitor}}">{{competitor}}</option>
                   {% endfor %}
