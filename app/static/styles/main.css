@@ -103,6 +103,7 @@
   padding: 1rem;
   border: 1px solid #ddd;
   border-top: none;
+  position: relative;
 }
 
 #marketSearchForm {

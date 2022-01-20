@@ -21,7 +21,6 @@ def index():
 
     states = []
     regions = []
-    locations = []
     competitors = []
 
     try:
@@ -30,14 +29,10 @@ def index():
         state_rows = db_cursor.fetchall()
         states = [state[0] for state in list(state_rows)]
 
-        distance_sql = "SELECT DISTINCT location_market, location_origin FROM umbric.locations_distances"
+        distance_sql = "SELECT DISTINCT location_market FROM umbric.locations_distances"
         db_cursor.execute(distance_sql)
         distance_rows = db_cursor.fetchall()
         regions = [distance[0] for distance in list(distance_rows) if distance[0] is not None]
-        locations = [distance[1] for distance in list(distance_rows) if distance[1] is not None]
-
-        regions = list(dict.fromkeys(regions))
-        locations = list(dict.fromkeys(locations))
 
         competitors_sql = "SELECT DISTINCT(location_franchise) FROM umbric.locations_jiffy"
         db_cursor.execute(competitors_sql)
@@ -58,7 +53,6 @@ def index():
         'home/index.html',
         states=states,
         regions=regions,
-        locations= locations,
         competitors=competitors
     )
 
@@ -140,6 +134,29 @@ def market_search():
         return jsonify({
             "success": True,
             "data": data,
+        })
+
+    except Exception as e:
+        print(e)
+        return jsonify({"error": str(e)}), 400
+
+
+@home.route('/location_search', methods=['POST'])
+def location_search():
+    try:
+        form_data = request.form.to_dict()
+        state = form_data.get('state')
+        if not state:
+            raise Exception('State could not found')
+
+        distance_sql = f"SELECT DISTINCT location_origin FROM umbric.locations_distances WHERE location_origin REGEXP '.*[[:blank:]]+{state}[[:blank:]]+[0-9]{{5}}$'"
+        db_cursor.execute(distance_sql)
+        distance_rows = db_cursor.fetchall()
+        locations = [distance[0] for distance in list(distance_rows) if distance[0] is not None]
+
+        return jsonify({
+            "success": True,
+            "data": locations,
         })
 
     except Exception as e:

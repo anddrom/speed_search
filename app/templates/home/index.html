@@ -47,7 +47,7 @@
               <div class="form-group">
                 <label for="state">State</label>
                 <select name="state" class="custom-select" id="state">
-                  <option value="none">-</option>
+                  <option value="">-</option>
                   {% for state in states  %}
                     <option value="{{state}}">{{state}}</option>
                   {% endfor %}
@@ -60,7 +60,7 @@
               <div class="form-group">
                 <label for="competitor">Competitor</label>
                 <select name="competitor" class="custom-select" id="competitor">
-                  <option value="">-</option>
+                  <option value="">All</option>
                   {% for competitor in competitors  %}
                     <option value="{{competitor}}">{{competitor}}</option>
                   {% endfor %}
@@ -84,6 +84,10 @@
   
               <input type="submit" name="submit" value="Generate" class="btn btn-info" />
             </form>
+          </div>
+
+          <div class="search-loader" id="searchFormLoader">
+            <div class="lds-ripple"><div></div><div></div></div>
           </div>
         </div>
       </section>
@@ -120,8 +124,6 @@
         </div>
       </section>
     </div>
-
-    <script id="locationJson" type="application/json">{"data": "{{locations}}"}</script>
 
   </body>
 </html>

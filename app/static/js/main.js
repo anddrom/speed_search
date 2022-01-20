@@ -2,7 +2,6 @@ $(function() {
   var $searchForm = $('#searchForm');
   var $marketSearchForm = $('#marketSearchForm');
   var $resultsTree = $('#resultsTree');
-  var $searchLoader = $('#searchLoader');
   var $filterGroup = $('#filterGroup');
 
   var $filterDate = $('#filterDate');
@@ -15,7 +14,9 @@ $(function() {
   var filterSort = 'coupon_lastseen';
 
   var results = [];
-  var locations = [];
+
+  var $searchLoader = $('#searchLoader');
+  var $searchFormLoader = $('#searchFormLoader');
 
   // Default Search Ajax
 
@@ -176,27 +177,37 @@ $(function() {
   })
 
   $selectState.on('change', function(event) {
-    selectedState = event.target.value;
-    if ( locations.length == 0 ) {
-      try {
-        var location_data = JSON.parse(document.getElementById('locationJson').textContent).data
-        locations = JSON.parse(location_data.replace(/&#39;/g, '"'))
-      } catch (err) {
-        console.error(err.message);
-      }
-    }
-
-    var locationReStr = ".* " + selectedState + " \\d+";
-    var locationRegex = new RegExp(locationReStr, "g");
-    var filteredLocations = locations.filter(function (location) {
-      return locationRegex.test(location);
-    })
-
     $selectLocation.html('');
-    filteredLocations.forEach(function (loc) {
-      $selectLocation.append(`<option value="${loc}">${loc}</option>`);
-    })
 
+    selectedState = event.target.value;
+    if ( selectedState ) {
+      var payload = {
+        state: selectedState,
+      }
+
+      $searchFormLoader.show();
+      $filterGroup.hide();
+
+      $.ajax({
+        url: "/location_search",
+        method: 'POST',
+        data: payload,
+        success: function (response) {
+          if ( response.success ) {
+            var locations = response.data;
+            locations.forEach(function (loc) {
+              $selectLocation.append(`<option value="${loc}">${loc}</option>`);
+            })
+          }
+
+          $searchFormLoader.hide();
+        },
+        error: function (error) {
+          console.error(error);
+          $searchFormLoader.hide();
+        }
+      });
+    }
   })
 
 });
