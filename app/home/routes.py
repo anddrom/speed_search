@@ -7,10 +7,10 @@ import pymysql
 
 db_conn = pymysql.connect(
     db       = 'umbric',
-    host     = 'ls-463b324eb918c38c0693a35e6331566693ee1edf.ctgbh4sn1ejq.us-east-1.rds.amazonaws.com',
+    host     = 'ls-3037dd862b611f2499617a718ad7760bf4956c69.ccss5fncdso0.us-east-2.rds.amazonaws.com',
     port     = 3306,
     user     = 'dbmasteruser',
-    password = 'egabrag1!garbage'
+    password = 'b$]ss4EZ#r+d[kvArLOt3zOff^6jm^J:'
 )
 
 db_cursor = db_conn.cursor()
