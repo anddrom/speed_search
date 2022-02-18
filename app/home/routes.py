@@ -1,6 +1,7 @@
 import os
 
-from flask import request, render_template, jsonify
+from functools import wraps
+from flask import redirect, render_template, session, jsonify, request
 from . import home
 
 import pymysql
@@ -15,8 +16,17 @@ db_conn = pymysql.connect(
 
 db_cursor = db_conn.cursor()
 
+def requires_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        if 'profile' not in session:
+            return redirect('/login')
+        return f(*args, **kwargs)
 
-@home.route('/', methods=['GET'])
+    return decorated
+
+@home.route('/dashboard', methods=['GET'])
+@requires_auth
 def index():
 
     states = []

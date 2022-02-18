@@ -1,0 +1,51 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>FullSpeed Search</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <script src="{{ url_for('static', filename='plugins/jquery-3.6.0.min.js') }}"></script>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='plugins/jstree/jstree.min.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles/main.css') }}" />
+
+    <script src="{{ url_for('static', filename='plugins/jstree/jstree.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  </head>
+
+  <body>
+    <nav class="navbar navbar-expand-sm">
+      <div class="container" style="align-items: flex-start;">
+        <a class="navbar-brand" href="#">
+          <img src="/static/images/logo.png" alt="Logo" width="200" />
+        </a>
+        <div class="ml-auto text-right">
+          <h3>Competitor Pricing Guide</h3>
+          <img src="/static/images/axis_local_logo.png" alt="Logo" width="120" />
+        </div>
+      </div>
+    </nav>
+
+    <div class="container py-4">
+      <section class="section">
+        <div class="login-box">
+          <img src="/static/images/axis_local_logo.png" alt="Logo" width="400" />
+
+          <div class="pt-4">
+            <h3>Welcome Back</h3>
+          </div>
+          <div class="pt-4">
+            <a id="qsLoginBtn" class="btn btn-primary btn-lg" href="/login" style="width: 200px;">Log In</a>
+          </div>
+        </div>
+      </section>
+    </div>
+
+  </body>
+</html>
