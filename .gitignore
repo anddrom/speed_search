@@ -45,3 +45,5 @@ venv
 cover
 
 config_*.py
+
+.env
