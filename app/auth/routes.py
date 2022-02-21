@@ -5,7 +5,9 @@ from flask import redirect, render_template, session, url_for
 from urllib.parse import urlencode
 from authlib.integrations.flask_client import OAuth
 from decouple import config
-from manage import auth0
+from app import create_app
+
+flask_app, auth0 = create_app()
 
 from . import auth
 
