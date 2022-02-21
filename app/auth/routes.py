@@ -4,17 +4,17 @@ from functools import wraps
 from flask import redirect, render_template, session, url_for
 from urllib.parse import urlencode
 from authlib.integrations.flask_client import OAuth
-from manage import flask_app as app
+from decouple import config
 from manage import auth0
 
 from . import auth
 
-AUTH0_CALLBACK_URL = app.config['AUTH0_CALLBACK_URL']
-AUTH0_CLIENT_ID = app.config['AUTH0_CLIENT_ID']
-AUTH0_CLIENT_SECRET = app.config['AUTH0_CLIENT_SECRET']
-AUTH0_DOMAIN = app.config['AUTH0_DOMAIN']
+AUTH0_CALLBACK_URL = config('AUTH0_CALLBACK_URL')
+AUTH0_CLIENT_ID = config('AUTH0_CLIENT_ID')
+AUTH0_CLIENT_SECRET = config('AUTH0_CLIENT_SECRET')
+AUTH0_DOMAIN = config('AUTH0_DOMAIN')
 AUTH0_BASE_URL = 'https://' + AUTH0_DOMAIN
-AUTH0_AUDIENCE = app.config['AUTH0_AUDIENCE']
+AUTH0_AUDIENCE = config('AUTH0_AUDIENCE')
 
 
 # Controllers API
@@ -29,8 +29,8 @@ def callback_handling():
     resp = auth0.get('userinfo')
     userinfo = resp.json()
 
-    session[app.config['JWT_PAYLOAD']] = userinfo
-    session[app.config['PROFILE_KEY']] = {
+    session[config('JWT_PAYLOAD')] = userinfo
+    session[config('PROFILE_KEY')] = {
         'user_id': userinfo['sub'],
         'name': userinfo['name'],
         'picture': userinfo['picture']
