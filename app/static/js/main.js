@@ -122,6 +122,7 @@ $(function() {
           coupon_text: element.coupon_text,
           coupon_lastseen: element.coupon_lastseen,
           note: element.note,
+          location_key: element.location_key,
         });
         branch[element.coupon_type] = subBranch;
         treeData[element.coupon_category] = branch;
@@ -147,7 +148,12 @@ $(function() {
           'children': subBranchData.map(function(sb) {
             return {
               'text': sb.note,
-              'icon': 'jstree-file'
+              'icon': 'jstree-file',
+              'a_attr': {
+                'href': sb.location_key,
+                'target': '_blank',
+                'position': 'last',
+              }
             }
           })
         };
@@ -207,6 +213,14 @@ $(function() {
           $searchFormLoader.hide();
         }
       });
+    }
+  })
+
+  $('body').on('click', 'a[position="last"]', function() {
+    var $this = $(this);
+    var anchorLink = $this.attr('href');
+    if (anchorLink) {
+      window.open(anchorLink, '_blank');
     }
   })
 

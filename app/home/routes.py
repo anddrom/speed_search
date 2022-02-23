@@ -3,15 +3,15 @@ import os
 from functools import wraps
 from flask import redirect, render_template, session, jsonify, request
 from . import home
-
+from decouple import config
 import pymysql
 
 db_conn = pymysql.connect(
-    db       = 'umbric',
-    host     = 'ls-3037dd862b611f2499617a718ad7760bf4956c69.ccss5fncdso0.us-east-2.rds.amazonaws.com',
-    port     = 3306,
-    user     = 'dbmasteruser',
-    password = 'b$]ss4EZ#r+d[kvArLOt3zOff^6jm^J:'
+    db       = config('DB_NAME'),
+    host     = config('DB_HOST'),
+    port     = int(config('DB_PORT')),
+    user     = config('DB_USER'),
+    password = config('DB_PASS'),
 )
 
 db_cursor = db_conn.cursor()
@@ -80,9 +80,9 @@ def search():
         location_rows = db_cursor.fetchall()
 
         coupons = []
-        coupon_columns = ['coupon_text', 'coupon_service', 'coupon_lastseen', 'coupon_category', 'coupon_type', 'competitor']
+        coupon_columns = ['coupon_text', 'coupon_service', 'coupon_lastseen', 'coupon_category', 'coupon_type', 'location_key', 'competitor', 'location_phone']
         for location in list(location_rows):
-            coupon_sql = f"SELECT DISTINCT c.coupon_text, c.coupon_service, c.coupon_lastseen, c.coupon_category, c.coupon_type, j.location_franchise FROM umbric.locations_coupons c JOIN umbric.locations_jiffy j ON c.location_destination = j.location_address WHERE location_destination = '{location[0]}'"
+            coupon_sql = f"SELECT DISTINCT c.coupon_text, c.coupon_service, c.coupon_lastseen, c.coupon_category, c.coupon_type, c.location_key, j.location_franchise, j.location_phone FROM umbric.locations_coupons c JOIN umbric.locations_jiffy j ON c.location_destination = j.location_address WHERE location_destination = '{location[0]}'"
 
             if competitor:
                 coupon_sql += f" AND j.location_franchise = '{competitor}'"
@@ -97,7 +97,7 @@ def search():
                     d['coupon_lastseen'] = d['coupon_lastseen'].isoformat()
                     d['destination'] = location[0]
                     d['distance'] = location[1]
-                    d['note'] = f"{d['coupon_text']} {d['coupon_service']} ({'{:.1f}'.format(d['distance'])}m - {d['competitor']} @ {d['destination'].split(',')[0]} - Seen: {d['coupon_lastseen'].split('T')[0]})"
+                    d['note'] = f"{d['coupon_text']} {d['coupon_service']} ({'{:.1f}'.format(d['distance'])}m - {d['competitor']} @ {d['destination'].split(',')[0]} - {d['location_phone']})"
                 except:
                     continue
 
@@ -121,10 +121,9 @@ def market_search():
         if not market:
             raise Exception('Market could not found')
 
-        coupons = []
-        coupon_columns = ['coupon_text', 'coupon_service', 'coupon_lastseen', 'coupon_category', 'coupon_type', 'destination', 'competitor', 'distance']
+        coupon_columns = ['coupon_text', 'coupon_service', 'coupon_lastseen', 'coupon_category', 'coupon_type', 'destination', 'location_key', 'competitor', 'location_phone', 'distance']
 
-        coupon_sql = f"SELECT DISTINCT c.coupon_text, c.coupon_service, c.coupon_lastseen, c.coupon_category, c.coupon_type, c.location_destination, j.location_franchise, d.location_distance FROM umbric.locations_coupons c JOIN umbric.locations_jiffy j ON c.location_destination = j.location_address JOIN umbric.locations_distances d ON c.location_destination = d.location_destination WHERE c.location_market  = '{market}'"
+        coupon_sql = f"SELECT DISTINCT c.coupon_text, c.coupon_service, c.coupon_lastseen, c.coupon_category, c.coupon_type, c.location_destination, c.location_key, j.location_franchise, j.location_phone, d.location_distance FROM umbric.locations_coupons c JOIN umbric.locations_jiffy j ON c.location_destination = j.location_address JOIN umbric.locations_distances d ON c.location_destination = d.location_destination WHERE c.location_market  = '{market}'"
         db_cursor.execute(coupon_sql)
         coupon_rows = db_cursor.fetchall()
 
@@ -133,7 +132,7 @@ def market_search():
         for d in data:
             try:
                 d['coupon_lastseen'] = d['coupon_lastseen'].isoformat()
-                d['note'] = f"{d['coupon_text']} {d['coupon_service']} ({'{:.1f}'.format(float(d['distance']))}m - {d['competitor']} @ {d['destination'].split(',')[0]} - Seen: {d['coupon_lastseen'].split('T')[0]})"
+                d['note'] = f"{d['coupon_text']} {d['coupon_service']} ({'{:.1f}'.format(float(d['distance']))}m - {d['competitor']} @ {d['destination'].split(',')[0]} - {d['location_phone']})"
             except Exception as e:
                 print(e)
                 continue
