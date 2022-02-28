@@ -1,6 +1,8 @@
 $(function() {
   var $searchForm = $('#searchForm');
   var $marketSearchForm = $('#marketSearchForm');
+  var $storeSearchForm = $('#storeSearchForm');
+
   var $resultsTree = $('#resultsTree');
   var $filterGroup = $('#filterGroup');
 
@@ -9,7 +11,6 @@ $(function() {
 
   var $selectState = $('#state');
   var $selectLocation = $('#location');
-  var $selectDesignation = $('#location_designation');
 
   var filterDate = 'all';
   var filterSort = 'coupon_lastseen';
@@ -78,6 +79,42 @@ $(function() {
 
     $.ajax({
       url: "/market_search",
+      method: 'POST',
+      data: payload,
+      success: function (response) {
+        if ( response.success ) {
+          results = response.data;
+          arrangeTree(results);
+
+          $filterGroup.show();
+        }
+
+        $searchLoader.hide();
+      },
+      error: function (error) {
+        console.error(error);
+        $searchLoader.hide();
+        $filterGroup.hide();
+      }
+    });
+  });
+
+  // Store Search Ajax
+
+  $storeSearchForm.submit( function( event ) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    var form = event.target;
+    var payload = {
+      store: form['store'].value,
+    }
+
+    $searchLoader.show();
+    $filterGroup.hide();
+
+    $.ajax({
+      url: "/store_search",
       method: 'POST',
       data: payload,
       success: function (response) {
@@ -203,15 +240,8 @@ $(function() {
         success: function (response) {
           if ( response.success ) {
             var locations = response.data;
-            $selectLocation.append(`<option value="">-</option>`);
             locations.forEach(function (loc) {
               $selectLocation.append(`<option value="${loc}">${loc}</option>`);
-            })
-
-            var numbers = response.numbers;
-            $selectDesignation.append(`<option value="">-</option>`);
-            numbers.forEach(function (num) {
-              $selectDesignation.append(`<option value="${num.address}">${num.number}</option>`);
             })
           }
 
@@ -223,14 +253,6 @@ $(function() {
         }
       });
     }
-  })
-
-  $selectLocation.on('change', function(event) {
-    $selectDesignation.find('option[value=""]').prop('selected', true);
-  })
-
-  $selectDesignation.on('change', function(event) {
-    $selectLocation.find('option[value=""]').prop('selected', true);
   })
 
   $('body').on('click', 'a[position="last"]', function() {

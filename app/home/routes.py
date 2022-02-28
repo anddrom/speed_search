@@ -32,12 +32,14 @@ def index():
     states = []
     regions = []
     competitors = []
+    stores = []
 
     try:
-        states_sql = "SELECT DISTINCT(location_state) FROM umbric.locations_home"
+        states_sql = "SELECT DISTINCT location_state, location_designation FROM umbric.locations_home"
         db_cursor.execute(states_sql)
         state_rows = db_cursor.fetchall()
         states = [state[0] for state in list(state_rows)]
+        stores = [state[1] for state in list(state_rows)]
 
         distance_sql = "SELECT DISTINCT location_market FROM umbric.locations_distances"
         db_cursor.execute(distance_sql)
@@ -63,7 +65,8 @@ def index():
         'home/index.html',
         states=states,
         regions=regions,
-        competitors=competitors
+        competitors=competitors,
+        stores=stores
     )
 
 @home.route('/search', methods=['POST'])
@@ -173,6 +176,43 @@ def location_search():
             "success": True,
             "data": locations,
             "numbers": numbers,
+        })
+
+    except Exception as e:
+        print(e)
+        return jsonify({"error": str(e)}), 400
+
+
+@home.route('/store_search', methods=['POST'])
+def store_search():
+    try:
+        form_data = request.form.to_dict()
+        store = form_data.get('store')
+        if not store:
+            raise Exception('Store could not found')
+
+        coupon_columns = ['coupon_text', 'coupon_service', 'coupon_lastseen', 'coupon_category', 'coupon_type', 'destination', 'location_key', 'competitor', 'location_phone', 'distance']
+
+        coupon_sql = f"SELECT DISTINCT c.coupon_text, c.coupon_service, c.coupon_lastseen, c.coupon_category, c.coupon_type, c.location_destination, c.location_key, j.location_franchise, j.location_phone, d.location_distance FROM umbric.locations_coupons c JOIN umbric.locations_jiffy j ON c.location_destination = j.location_address JOIN umbric.locations_distances d ON c.location_destination = d.location_destination JOIN umbric.locations_home h ON d.location_origin = h.location_address WHERE h.location_designation  = '{store}'"
+        db_cursor.execute(coupon_sql)
+        coupon_rows = db_cursor.fetchall()
+
+        data = [dict(zip(coupon_columns, row)) for row in list(coupon_rows)]
+
+        for d in data:
+            try:
+                d['coupon_lastseen'] = d['coupon_lastseen'].isoformat()
+                d['note'] = f"{d['coupon_text']} {d['coupon_service']} ({'{:.1f}'.format(float(d['distance']))}m - {d['competitor']} @ {d['destination'].split(',')[0]} - {d['location_phone']})"
+            except Exception as e:
+                print(e)
+                continue
+
+        # Close db connection
+        # db_conn.close()
+
+        return jsonify({
+            "success": True,
+            "data": data,
         })
 
     except Exception as e:
