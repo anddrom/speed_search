@@ -9,6 +9,7 @@ $(function() {
 
   var $selectState = $('#state');
   var $selectLocation = $('#location');
+  var $selectDesignation = $('#location_designation');
 
   var filterDate = 'all';
   var filterSort = 'coupon_lastseen';
@@ -26,13 +27,13 @@ $(function() {
 
     var form = event.target;
 
-    if ( !form['location'].value ) {
+    if ( !form['location'].value && !form['location_designation'].value ) {
       return false;
     }
 
     var payload = {
       state: form['state'].value,
-      location: form['location'].value,
+      location: form['location'].value || form['location_designation'].value,
       competitor: form['competitor'].value,
     }
 
@@ -184,6 +185,7 @@ $(function() {
 
   $selectState.on('change', function(event) {
     $selectLocation.html('');
+    $selectDesignation.html('');
 
     selectedState = event.target.value;
     if ( selectedState ) {
@@ -201,8 +203,15 @@ $(function() {
         success: function (response) {
           if ( response.success ) {
             var locations = response.data;
+            $selectLocation.append(`<option value="">-</option>`);
             locations.forEach(function (loc) {
               $selectLocation.append(`<option value="${loc}">${loc}</option>`);
+            })
+
+            var numbers = response.numbers;
+            $selectDesignation.append(`<option value="">-</option>`);
+            numbers.forEach(function (num) {
+              $selectDesignation.append(`<option value="${num.address}">${num.number}</option>`);
             })
           }
 
@@ -214,6 +223,14 @@ $(function() {
         }
       });
     }
+  })
+
+  $selectLocation.on('change', function(event) {
+    $selectDesignation.find('option[value=""]').prop('selected', true);
+  })
+
+  $selectDesignation.on('change', function(event) {
+    $selectLocation.find('option[value=""]').prop('selected', true);
   })
 
   $('body').on('click', 'a[position="last"]', function() {

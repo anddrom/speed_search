@@ -163,9 +163,16 @@ def location_search():
         distance_rows = db_cursor.fetchall()
         locations = [distance[0] for distance in list(distance_rows) if distance[0] is not None]
 
+        number_columns = ['address', 'number']
+        numbers_sql = f"SELECT DISTINCT location_address, location_designation FROM umbric.locations_home WHERE location_state = '{state}'"
+        db_cursor.execute(numbers_sql)
+        numbers_rows = db_cursor.fetchall()
+        numbers = [dict(zip(number_columns, row)) for row in list(numbers_rows)]
+
         return jsonify({
             "success": True,
             "data": locations,
+            "numbers": numbers,
         })
 
     except Exception as e:
