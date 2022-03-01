@@ -240,7 +240,7 @@ $(function() {
           if ( response.success ) {
             var locations = response.data;
             locations.forEach(function (loc) {
-              $selectLocation.append(`<option value="${loc}">${loc}</option>`);
+              $selectLocation.append(`<option value="${loc.address}">${loc.address} (${loc.number})</option>`);
             })
           }
 
