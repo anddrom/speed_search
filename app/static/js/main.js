@@ -222,7 +222,6 @@ $(function() {
 
   $selectState.on('change', function(event) {
     $selectLocation.html('');
-    $selectDesignation.html('');
 
     selectedState = event.target.value;
     if ( selectedState ) {
