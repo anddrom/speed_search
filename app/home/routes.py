@@ -39,12 +39,17 @@ def index():
         db_cursor.execute(states_sql)
         state_rows = db_cursor.fetchall()
         states = [state[0] for state in list(state_rows)]
+        states = list(set(states))
+        states.sort()
+
         stores = [state[1] for state in list(state_rows)]
+        stores.sort()
 
         distance_sql = "SELECT DISTINCT location_market FROM umbric.locations_distances"
         db_cursor.execute(distance_sql)
         distance_rows = db_cursor.fetchall()
         regions = [distance[0] for distance in list(distance_rows) if distance[0] is not None]
+        regions.sort()
 
         competitors_sql = "SELECT DISTINCT(location_franchise) FROM umbric.locations_jiffy"
         db_cursor.execute(competitors_sql)
