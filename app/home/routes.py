@@ -193,12 +193,18 @@ def store_search():
     try:
         form_data = request.form.to_dict()
         store = form_data.get('store')
+        competitor = form_data.get('competitor')
+
         if not store:
             raise Exception('Store could not found')
 
         coupon_columns = ['coupon_text', 'coupon_service', 'coupon_lastseen', 'coupon_category', 'coupon_type', 'destination', 'location_key', 'competitor', 'location_phone', 'distance']
 
         coupon_sql = f"SELECT DISTINCT c.coupon_text, c.coupon_service, c.coupon_lastseen, c.coupon_category, c.coupon_type, c.location_destination, c.location_key, j.location_franchise, j.location_phone, d.location_distance FROM umbric.locations_coupons c JOIN umbric.locations_jiffy j ON c.location_destination = j.location_address JOIN umbric.locations_distances d ON c.location_destination = d.location_destination JOIN umbric.locations_home h ON d.location_origin = h.location_address WHERE h.location_designation  = '{store}'"
+
+        if competitor:
+            coupon_sql += f" AND j.location_franchise = '{competitor}'"
+
         db_cursor.execute(coupon_sql)
         coupon_rows = db_cursor.fetchall()
 

@@ -108,6 +108,7 @@ $(function() {
     var form = event.target;
     var payload = {
       store: form['store'].value,
+      competitor: form['competitor'].value,
     }
 
     $searchLoader.show();

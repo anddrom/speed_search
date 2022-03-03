@@ -99,13 +99,22 @@
             <form method="POST" action="" class="search-form" id="storeSearchForm">
               <div class="form-group">
                 <label for="store">Store</label>
-                <select name="store" class="custom-select" id="store">
+                <!-- <select name="store" class="custom-select" id="store">
                   {% for store in stores  %}
                     <option value="{{store}}">{{store}}</option>
                   {% endfor %}
+                </select> -->
+                <input class="form-control" name="store" id="store" type="number" />
+              </div>
+              <div class="form-group">
+                <label for="competitor">Competitor</label>
+                <select name="competitor" class="custom-select" id="competitor">
+                  <option value="">All</option>
+                  {% for competitor in competitors  %}
+                    <option value="{{competitor}}">{{competitor}}</option>
+                  {% endfor %}
                 </select>
               </div>
-
               <input type="submit" name="submit" value="Generate" class="btn btn-info" />
             </form>
           </div>
