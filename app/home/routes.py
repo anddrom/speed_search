@@ -1,20 +1,29 @@
 import os
 
 from functools import wraps
-from flask import redirect, render_template, session, jsonify, request
+from flask import redirect, render_template, session, jsonify, request, g
 from . import home
 from decouple import config
 import pymysql
 
-db_conn = pymysql.connect(
-    db       = config('DB_NAME'),
-    host     = config('DB_HOST'),
-    port     = int(config('DB_PORT')),
-    user     = config('DB_USER'),
-    password = config('DB_PASS'),
-)
+def connect_db():
+    db_conn = pymysql.connect(
+        db       = config('DB_NAME'),
+        host     = config('DB_HOST'),
+        port     = int(config('DB_PORT')),
+        user     = config('DB_USER'),
+        password = config('DB_PASS'),
+    )
 
-db_cursor = db_conn.cursor()
+    return db_conn
+
+def get_db():
+    '''Opens a new database connection per request.'''
+    if not hasattr(g, 'db'):
+        g.db = connect_db()
+        # db_cursor.execute('set global max_allowed_packet=67108864') # 1048576000
+
+    return g.db
 
 def requires_auth(f):
     @wraps(f)
@@ -36,6 +45,7 @@ def index():
 
     try:
         states_sql = "SELECT DISTINCT location_state, location_designation FROM umbric.locations_home"
+        db_cursor = get_db().cursor()
         db_cursor.execute(states_sql)
         state_rows = db_cursor.fetchall()
         states = [state[0] for state in list(state_rows)]
@@ -84,6 +94,7 @@ def search():
         competitor = form_data.get('competitor')
 
         location_sql = f"SELECT location_destination, location_distance  FROM umbric.locations_distances WHERE location_origin = '{form_data.get('location')}'"
+        db_cursor = get_db().cursor()
         db_cursor.execute(location_sql)
         location_rows = db_cursor.fetchall()
 
@@ -132,6 +143,7 @@ def market_search():
         coupon_columns = ['coupon_text', 'coupon_service', 'coupon_lastseen', 'coupon_category', 'coupon_type', 'destination', 'location_key', 'competitor', 'location_phone', 'distance']
 
         coupon_sql = f"SELECT DISTINCT c.coupon_text, c.coupon_service, c.coupon_lastseen, c.coupon_category, c.coupon_type, c.location_destination, c.location_key, j.location_franchise, j.location_phone, d.location_distance FROM umbric.locations_coupons c JOIN umbric.locations_jiffy j ON c.location_destination = j.location_address JOIN umbric.locations_distances d ON c.location_destination = d.location_destination WHERE c.location_market  = '{market}'"
+        db_cursor = get_db().cursor()
         db_cursor.execute(coupon_sql)
         coupon_rows = db_cursor.fetchall()
 
@@ -173,6 +185,7 @@ def location_search():
 
         number_columns = ['address', 'number']
         numbers_sql = f"SELECT DISTINCT location_address, location_designation FROM umbric.locations_home WHERE location_state = '{state}'"
+        db_cursor = get_db().cursor()
         db_cursor.execute(numbers_sql)
         numbers_rows = db_cursor.fetchall()
         locations = [dict(zip(number_columns, row)) for row in list(numbers_rows)]
@@ -205,6 +218,7 @@ def store_search():
         if competitor:
             coupon_sql += f" AND j.location_franchise = '{competitor}'"
 
+        db_cursor = get_db().cursor()
         db_cursor.execute(coupon_sql)
         coupon_rows = db_cursor.fetchall()
 
