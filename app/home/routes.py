@@ -55,11 +55,14 @@ def index():
         stores = [state[1] for state in list(state_rows)]
         stores.sort()
 
-        distance_sql = "SELECT DISTINCT location_market FROM umbric.locations_distances"
+        distance_sql = "SELECT DISTINCT location_market, location_market_owner FROM umbric.locations_distances"
         db_cursor.execute(distance_sql)
         distance_rows = db_cursor.fetchall()
         regions = [distance[0] for distance in list(distance_rows) if distance[0] is not None]
+        managers = [distance[1] for distance in list(distance_rows) if distance[1] is not None]
         regions.sort()
+        managers = list(dict.fromkeys(managers))
+        managers.sort()
 
         competitors_sql = "SELECT DISTINCT(location_franchise) FROM umbric.locations_jiffy"
         db_cursor.execute(competitors_sql)
@@ -81,7 +84,8 @@ def index():
         states=states,
         regions=regions,
         competitors=competitors,
-        stores=stores
+        stores=stores,
+        managers=managers
     )
 
 @home.route('/search', methods=['POST'])
@@ -143,6 +147,44 @@ def market_search():
         coupon_columns = ['coupon_text', 'coupon_service', 'coupon_lastseen', 'coupon_category', 'coupon_type', 'destination', 'location_key', 'competitor', 'location_phone', 'distance']
 
         coupon_sql = f"SELECT DISTINCT c.coupon_text, c.coupon_service, c.coupon_lastseen, c.coupon_category, c.coupon_type, c.location_destination, c.location_key, j.location_franchise, j.location_phone, d.location_distance FROM umbric.locations_coupons c JOIN umbric.locations_jiffy j ON c.location_destination = j.location_address JOIN umbric.locations_distances d ON c.location_destination = d.location_destination WHERE c.location_market  = '{market}'"
+        db_cursor = get_db().cursor()
+        db_cursor.execute(coupon_sql)
+        coupon_rows = db_cursor.fetchall()
+
+        data = [dict(zip(coupon_columns, row)) for row in list(coupon_rows)]
+
+        for d in data:
+            try:
+                d['coupon_lastseen'] = d['coupon_lastseen'].isoformat()
+                d['note'] = f"{d['coupon_text']} {d['coupon_service']} ({'{:.1f}'.format(float(d['distance']))}m - {d['competitor']} @ {d['destination'].split(',')[0]} - {d['location_phone']})"
+            except Exception as e:
+                print(e)
+                continue
+
+        # Close db connection
+        # db_conn.close()
+
+        return jsonify({
+            "success": True,
+            "data": data,
+        })
+
+    except Exception as e:
+        print(e)
+        return jsonify({"error": str(e)}), 400
+
+
+@home.route('/managers_search', methods=['POST'])
+def managers_search():
+    try:
+        form_data = request.form.to_dict()
+        manager = form_data.get('manager')
+        if not manager:
+            raise Exception('Manager could not found')
+
+        coupon_columns = ['coupon_text', 'coupon_service', 'coupon_lastseen', 'coupon_category', 'coupon_type', 'destination', 'location_key', 'competitor', 'location_phone', 'distance']
+
+        coupon_sql = f"SELECT DISTINCT c.coupon_text, c.coupon_service, c.coupon_lastseen, c.coupon_category, c.coupon_type, c.location_destination, c.location_key, j.location_franchise, j.location_phone, d.location_distance FROM umbric.locations_coupons c JOIN umbric.locations_jiffy j ON c.location_destination = j.location_address JOIN umbric.locations_distances d ON c.location_destination = d.location_destination WHERE d.location_market_owner = '{manager}'"
         db_cursor = get_db().cursor()
         db_cursor.execute(coupon_sql)
         coupon_rows = db_cursor.fetchall()

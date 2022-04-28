@@ -106,12 +106,13 @@
   position: relative;
 }
 
-#marketSearchForm, #storeSearchForm {
+#marketSearchForm, #storeSearchForm, #managersSearchForm {
   justify-content: flex-start;
 }
 
 #marketSearchForm > *,
-#storeSearchForm > * {
+#storeSearchForm > *,
+#managersSearchForm > * {
   flex-grow: unset;
 }
 

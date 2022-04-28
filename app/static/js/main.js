@@ -2,6 +2,7 @@ $(function() {
   var $searchForm = $('#searchForm');
   var $marketSearchForm = $('#marketSearchForm');
   var $storeSearchForm = $('#storeSearchForm');
+  var $managersSearchForm = $('#managersSearchForm');
 
   var $resultsTree = $('#resultsTree');
   var $filterGroup = $('#filterGroup');
@@ -135,6 +136,44 @@ $(function() {
       }
     });
   });
+
+  // Managers Search Ajax
+
+  $managersSearchForm.submit( function( event ) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    var form = event.target;
+    var payload = {
+      manager: form['manager'].value,
+    }
+
+    $searchLoader.show();
+    $filterGroup.hide();
+
+    $.ajax({
+      url: "/managers_search",
+      method: 'POST',
+      data: payload,
+      success: function (response) {
+        if ( response.success ) {
+          results = response.data;
+          arrangeTree(results);
+
+          $filterGroup.show();
+        }
+
+        $searchLoader.hide();
+      },
+      error: function (error) {
+        console.error(error);
+        $searchLoader.hide();
+        $filterGroup.hide();
+      }
+    });
+  });
+
+  // Display results
 
   function arrangeTree (jsons) {
     var treeData = {};
