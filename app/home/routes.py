@@ -42,6 +42,7 @@ def index():
     regions = []
     competitors = []
     stores = []
+    managers = []
 
     try:
         states_sql = "SELECT DISTINCT location_state, location_designation FROM umbric.locations_home"
